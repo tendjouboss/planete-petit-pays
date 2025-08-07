@@ -43,7 +43,7 @@ require_once 'includes/header.php';
                 Planète Petit Pays
             </h1>
             <p class="text-xl md:text-2xl mb-8 text-gray-200 leading-relaxed">
-                Découvrez la richesse musicale de la Côte d'Ivoire<br>
+                Découvrez la richesse musicale du Cameroun<br>
                 <span class="text-yellow-300 font-semibold">Téléchargez, écoutez, partagez</span>
             </p>
             

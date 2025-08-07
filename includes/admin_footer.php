@@ -48,8 +48,8 @@
                     <h3 class="text-lg font-semibold mb-4">Contact</h3>
                     <ul class="space-y-2 text-gray-300">
                         <li><i class="fas fa-envelope mr-2"></i>contact@planete-petit-pays.com</li>
-                        <li><i class="fas fa-phone mr-2"></i>+225 XX XX XX XX</li>
-                        <li><i class="fas fa-map-marker-alt mr-2"></i>Abidjan, Côte d'Ivoire</li>
+                        <li><i class="fas fa-phone mr-2"></i>+237 XX XX XX XX</li>
+                        <li><i class="fas fa-map-marker-alt mr-2"></i>Douala, Cameroun</li>
                     </ul>
                 </div>
             </div>

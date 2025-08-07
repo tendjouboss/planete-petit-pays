@@ -1,6 +1,6 @@
 # Guide de Déploiement Railway - Étape par Étape
 
-## 🚀 Déploiement de Planète Petit Pays sur Railway
+## 🚀 Déploiement de Planète Petit Pays (Cameroun) sur Railway
 
 ### Étape 1 : Préparation du Repository GitHub
 

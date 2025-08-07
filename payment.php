@@ -252,7 +252,7 @@ require_once 'includes/header.php';
                     <label class="block text-gray-700 font-semibold mb-2">Téléphone</label>
                     <input type="tel" name="phone" required
                            class="w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-primary-blue focus:ring-2 focus:ring-primary-blue/20 transition-all"
-                           placeholder="+225 0123456789">
+                           placeholder="+237 0123456789">
                 </div>
                 
                                  <!-- Méthode de paiement -->

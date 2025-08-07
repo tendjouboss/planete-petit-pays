@@ -1,7 +1,7 @@
 # Plateforme Musicale - Planète Petit Pays
 
 ## 🎵 Description
-Plateforme web pour un artiste musical permettant la vente et le téléchargement de musiques et vidéos.
+Plateforme web pour un artiste musical camerounais permettant la vente et le téléchargement de musiques et vidéos.
 
 ## 🚀 Fonctionnalités
 - Création de compte utilisateur et connexion
