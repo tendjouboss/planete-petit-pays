@@ -1,0 +1,35 @@
+# Fichiers de configuration sensibles
+.env
+config.local.php
+
+# Fichiers uploads (pour éviter de versionner les fichiers audio/vidéo)
+assets/uploads/audio/*
+assets/uploads/video/*
+assets/uploads/albums/*
+!assets/uploads/audio/.gitkeep
+!assets/uploads/video/.gitkeep
+!assets/uploads/albums/.gitkeep
+
+# Logs
+*.log
+logs/
+
+# Fichiers temporaires
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Dependencies
+vendor/
+node_modules/
+
+# Cache
+cache/
+*.cache 
