@@ -8,20 +8,36 @@ if (!isLoggedIn()) {
 
 $pageTitle = "Mon Profil";
 
-// Récupérer les informations de l'utilisateur
-$pdo = getDBConnection();
-$stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
-$stmt->execute([$_SESSION['user_id']]);
-$user = $stmt->fetch();
+require_once 'includes/header.php';
 
-// Récupérer l'historique des achats
-$purchaseHistory = getUserPurchaseHistory($_SESSION['user_id']);
+try {
+    // Récupérer les informations de l'utilisateur
+    $pdo = getDBConnection();
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    $user = $stmt->fetch();
 
-// Vérifier le statut d'abonnement
-$hasActiveSubscription = hasActiveSubscription($_SESSION['user_id']);
+    if (!$user) {
+        setMessage('error', 'Utilisateur non trouvé');
+        redirect('login.php');
+    }
+
+    // Récupérer l'historique des achats
+    $purchaseHistory = getUserPurchaseHistory($_SESSION['user_id']);
+
+    // Vérifier le statut d'abonnement
+    $hasActiveSubscription = hasActiveSubscription($_SESSION['user_id']);
+    
+} catch (Exception $e) {
+    setMessage('error', 'Erreur lors du chargement du profil');
+    redirect('index.php');
+}
 ?>
 
 <div class="max-w-7xl mx-auto">
+    <!-- Messages d'erreur/succès -->
+    <?php echo displayMessage(); ?>
+    
     <!-- Header du profil -->
     <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
         <div class="bg-gradient-to-r from-primary-red to-primary-orange p-6 text-white">
@@ -67,6 +83,11 @@ $hasActiveSubscription = hasActiveSubscription($_SESSION['user_id']);
                                 <div>
                                     <div class="font-semibold text-green-800">Abonnement actif</div>
                                     <div class="text-sm text-green-600">Accès illimité</div>
+                                    <?php if ($user['date_abonnement']): ?>
+                                        <div class="text-xs text-green-500 mt-1">
+                                            Depuis le <?php echo date('d/m/Y', strtotime($user['date_abonnement'])); ?>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -82,7 +103,7 @@ $hasActiveSubscription = hasActiveSubscription($_SESSION['user_id']);
                         </div>
                         <a href="payment.php?type=abo&amount=<?php echo PRIX_ABONNEMENT; ?>" 
                            class="mt-3 inline-flex items-center px-4 py-2 bg-primary-red text-white rounded-lg hover:bg-red-700 transition-colors">
-                            <i class="fas fa-crown mr-2"></i>S'abonner
+                            <i class="fas fa-crown mr-2"></i>S'abonner (<?php echo formatPrice(PRIX_ABONNEMENT); ?>/mois)
                         </a>
                     <?php endif; ?>
                 </div>
@@ -106,6 +127,19 @@ $hasActiveSubscription = hasActiveSubscription($_SESSION['user_id']);
                                 }
                                 ?>
                             </span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Total dépensé :</span>
+                            <span class="font-semibold text-primary-red">
+                                <?php 
+                                $totalSpent = array_sum(array_column($purchaseHistory, 'prix'));
+                                echo formatPrice($totalSpent);
+                                ?>
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Membre depuis :</span>
+                            <span class="font-medium"><?php echo date('d/m/Y', strtotime($user['date_creation'])); ?></span>
                         </div>
                     </div>
                 </div>
@@ -182,6 +216,11 @@ $hasActiveSubscription = hasActiveSubscription($_SESSION['user_id']);
         <a href="albums.php" class="inline-flex items-center px-6 py-3 border border-primary-red text-primary-red rounded-lg hover:bg-primary-red hover:text-white transition-colors">
             <i class="fas fa-compact-disc mr-2"></i>Voir les albums
         </a>
+        <?php if (!$hasActiveSubscription): ?>
+        <a href="payment.php?type=abo&amount=<?php echo PRIX_ABONNEMENT; ?>" class="inline-flex items-center px-6 py-3 bg-primary-red text-white rounded-lg hover:bg-red-700 transition-colors">
+            <i class="fas fa-crown mr-2"></i>S'abonner
+        </a>
+        <?php endif; ?>
         <a href="index.php" class="inline-flex items-center px-6 py-3 border border-primary-orange text-primary-orange rounded-lg hover:bg-primary-orange hover:text-white transition-colors">
             <i class="fas fa-home mr-2"></i>Retour à l'accueil
         </a>
@@ -190,6 +229,12 @@ $hasActiveSubscription = hasActiveSubscription($_SESSION['user_id']);
 
 <script>
 function downloadFile(fileId) {
+    // Afficher un indicateur de chargement
+    const button = event.target;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Téléchargement...';
+    button.disabled = true;
+    
     // Créer un token de téléchargement
     fetch('ajax/create_download_token.php', {
         method: 'POST',
@@ -200,19 +245,34 @@ function downloadFile(fileId) {
             file_id: fileId
         })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erreur réseau');
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             // Rediriger vers le téléchargement
             window.location.href = `download.php?token=${data.token}`;
         } else {
-            alert('Erreur lors de la création du lien de téléchargement');
+            alert('Erreur: ' + (data.message || 'Erreur lors de la création du lien de téléchargement'));
         }
     })
     .catch(error => {
         console.error('Erreur:', error);
-        alert('Erreur lors du téléchargement');
+        alert('Erreur lors du téléchargement. Veuillez réessayer.');
+    })
+    .finally(() => {
+        // Restaurer le bouton
+        button.innerHTML = originalText;
+        button.disabled = false;
     });
+}
+
+// Fonction pour confirmer les actions importantes
+function confirmAction(message) {
+    return confirm(message || 'Êtes-vous sûr de vouloir continuer ?');
 }
 </script>
 
