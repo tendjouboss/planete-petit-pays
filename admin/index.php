@@ -7,7 +7,7 @@ require_once '../includes/admin_header.php';
 ?>
 <div class="max-w-4xl mx-auto py-12">
     <h1 class="text-3xl font-bold mb-8 text-center text-primary-red">Espace Administration</h1>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         <a href="ajouter_album.php" class="bg-primary-red text-white rounded-lg p-8 flex flex-col items-center shadow hover:scale-105 transition">
             <i class="fas fa-plus fa-2x mb-4"></i>
             <span class="font-semibold">Créer un album</span>
@@ -19,6 +19,10 @@ require_once '../includes/admin_header.php';
         <a href="liste_albums.php" class="bg-primary-yellow text-gray-900 rounded-lg p-8 flex flex-col items-center shadow hover:scale-105 transition">
             <i class="fas fa-list fa-2x mb-4"></i>
             <span class="font-semibold">Gérer les albums</span>
+        </a>
+        <a href="statistiques.php" class="bg-primary-orange text-white rounded-lg p-8 flex flex-col items-center shadow hover:scale-105 transition">
+            <i class="fas fa-chart-bar fa-2x mb-4"></i>
+            <span class="font-semibold">Statistiques</span>
         </a>
     </div>
 </div>

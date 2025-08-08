@@ -20,6 +20,7 @@ initSession();
                         'primary-orange': '#EA580C',
                         'primary-yellow': '#EAB308',
                         'primary-blue': '#2563EB',
+                        'primary-green': '#059669',
                     }
                 }
             }

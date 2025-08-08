@@ -241,4 +241,119 @@ function isAdminOrRedirect() {
         redirect('index.php');
         exit();
     }
+}
+
+/**
+ * Récupère les statistiques générales pour l'admin
+ */
+function getAdminStatistics($pdo) {
+    // Total téléchargements
+    $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM achats");
+    $stmt->execute();
+    $totalDownloads = $stmt->fetch()['total'];
+    
+    // Total utilisateurs
+    $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM users WHERE role = 'user'");
+    $stmt->execute();
+    $totalUsers = $stmt->fetch()['total'];
+    
+    // Total albums
+    $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM albums WHERE actif = 1");
+    $stmt->execute();
+    $totalAlbums = $stmt->fetch()['total'];
+    
+    // Total fichiers
+    $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM fichiers WHERE actif = 1");
+    $stmt->execute();
+    $totalFiles = $stmt->fetch()['total'];
+    
+    return [
+        'total_downloads' => $totalDownloads,
+        'total_users' => $totalUsers,
+        'total_albums' => $totalAlbums,
+        'total_files' => $totalFiles
+    ];
+}
+
+/**
+ * Récupère les statistiques par album
+ */
+function getAlbumStatistics($pdo) {
+    $stmt = $pdo->prepare("
+        SELECT 
+            a.id,
+            a.titre,
+            a.description,
+            COUNT(DISTINCT f.id) as nb_fichiers,
+            COUNT(ach.id) as total_downloads,
+            SUM(f.prix) as total_revenue
+        FROM albums a
+        LEFT JOIN fichiers f ON a.id = f.album_id AND f.actif = 1
+        LEFT JOIN achats ach ON f.id = ach.fichier_id
+        WHERE a.actif = 1
+        GROUP BY a.id
+        ORDER BY total_downloads DESC
+    ");
+    $stmt->execute();
+    return $stmt->fetchAll();
+}
+
+/**
+ * Récupère les statistiques par fichier (top 10)
+ */
+function getFileStatistics($pdo) {
+    $stmt = $pdo->prepare("
+        SELECT 
+            f.id,
+            f.titre,
+            f.type,
+            f.prix,
+            f.duree,
+            a.titre as album_titre,
+            COUNT(ach.id) as downloads,
+            (COUNT(ach.id) * f.prix) as revenue
+        FROM fichiers f
+        LEFT JOIN albums a ON f.album_id = a.id
+        LEFT JOIN achats ach ON f.id = ach.fichier_id
+        WHERE f.actif = 1
+        GROUP BY f.id
+        ORDER BY downloads DESC
+        LIMIT 10
+    ");
+    $stmt->execute();
+    return $stmt->fetchAll();
+}
+
+/**
+ * Récupère les statistiques des utilisateurs
+ */
+function getUserStatistics($pdo) {
+    // Total utilisateurs
+    $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM users WHERE role = 'user'");
+    $stmt->execute();
+    $totalUsers = $stmt->fetch()['total'];
+    
+    // Abonnements actifs
+    $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM users WHERE abonnement_actif = 1");
+    $stmt->execute();
+    $activeSubscriptions = $stmt->fetch()['total'];
+    
+    // Moyenne téléchargements par utilisateur
+    $stmt = $pdo->prepare("
+        SELECT 
+            COUNT(ach.id) as total_downloads,
+            COUNT(DISTINCT u.id) as total_users
+        FROM users u
+        LEFT JOIN achats ach ON u.id = ach.user_id
+        WHERE u.role = 'user'
+    ");
+    $stmt->execute();
+    $result = $stmt->fetch();
+    $avgDownloads = $result['total_users'] > 0 ? $result['total_downloads'] / $result['total_users'] : 0;
+    
+    return [
+        'total_users' => $totalUsers,
+        'active_subscriptions' => $activeSubscriptions,
+        'avg_downloads_per_user' => $avgDownloads
+    ];
 } 
